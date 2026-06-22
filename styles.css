@@ -40,11 +40,11 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.7rem;
+    gap: 0.5rem;
     position: sticky;
     top: 0;
     height: 100vh;
-    padding: 0.65rem 0.5rem;
+    padding: 0.5rem 0.35rem;
     background: linear-gradient(180deg, rgba(124, 58, 237, 0.26) 0%, rgba(24, 24, 24, 0.96) 65%);
     border-right: 1px solid #3a3a3a;
 }
@@ -64,7 +64,7 @@ body {
 .sidebar-section {
     display: flex;
     flex-direction: column;
-    gap: 0.45rem;
+    gap: 0.35rem;
 }
 
 .sidebar-bottom {
@@ -83,6 +83,11 @@ body {
     border: 1px solid #454545;
     background: rgba(20, 20, 20, 0.75);
     color: #d3d3d3;
+}
+
+.sidebar-menu .btn i,
+.sidebar-menu .nav-link i {
+    font-size: 1.2rem;
 }
 
 .sidebar-menu .nav-link.active {
@@ -178,20 +183,20 @@ body {
 .character-card-photo {
     width: 100%;
     height: 100%;
-    min-height: 205px;
+    min-height: 188px;
     object-fit: cover;
     background: #1a1a1a;
 }
 
 .character-card-info {
-    padding: 0.72rem;
+    padding: 0.62rem;
 }
 
 .character-card-name {
     font-size: 1.2rem;
     font-weight: 600;
     color: var(--primary-light);
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
     word-break: break-word;
 }
 
@@ -201,7 +206,7 @@ body {
 .character-stats-row {
     display: flex;
     gap: 0.75rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0.65rem;
     flex-wrap: wrap;
 }
 
@@ -209,7 +214,7 @@ body {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 0.3rem;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.35rem;
 }
 
 .counter-box {
@@ -217,7 +222,7 @@ body {
     align-items: center;
     justify-content: space-between;
     gap: 0.35rem;
-    padding: 0.34rem;
+    padding: 0.28rem;
     background: #1a1a1a;
     border: 1px solid #333;
     border-radius: 0.4rem;
@@ -360,7 +365,7 @@ body {
     align-items: center;
     justify-content: space-between;
     gap: 0.35rem;
-    padding: 0.34rem;
+    padding: 0.28rem;
     background: #1a1a1a;
     border: 1px solid #333;
     border-radius: 0.4rem;
@@ -407,14 +412,14 @@ body {
    CHARACTER ITEMS (Assigned Objects)
    ============================================ */
 .character-items-section {
-    margin-top: 0.5rem;
-    padding-top: 0.5rem;
+    margin-top: 0.35rem;
+    padding-top: 0.35rem;
     border-top: 1px solid #333;
 }
 
 .character-statuses-section {
-    margin-top: 0.5rem;
-    padding-top: 0.5rem;
+    margin-top: 0.35rem;
+    padding-top: 0.35rem;
     border-top: 1px solid #333;
 }
 
@@ -825,6 +830,11 @@ body {
         padding: 0.45rem;
     }
 
+    .sidebar-menu .btn i,
+    .sidebar-menu .nav-link i {
+        font-size: 1.1rem;
+    }
+
     .sidebar-section {
         flex-direction: row;
     }
@@ -839,7 +849,7 @@ body {
     }
 
     .character-card-photo {
-        min-height: 180px;
+        min-height: 165px;
     }
 
     .character-primary-counters {
