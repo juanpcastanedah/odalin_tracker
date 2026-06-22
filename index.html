@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Odalín RPG Tracker</title>
+    <!-- Bootstrap 5 Dark Theme -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-dark text-light">
+    <!-- Header -->
+    <header class="header">
+        <div class="container-fluid">
+            <div class="row align-items-center py-3">
+                <div class="col">
+                    <h1 class="mb-0">
+                        <i class="fas fa-swords"></i> Odalín Tracker
+                    </h1>
+                </div>
+                <div class="col-auto">
+                    <button id="exportBtn" class="btn btn-outline-light btn-sm" title="Exportar datos">
+                        <i class="fas fa-download"></i>
+                    </button>
+                    <button id="importBtn" class="btn btn-outline-light btn-sm" title="Importar datos">
+                        <i class="fas fa-upload"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container-fluid py-4">
+        <!-- Navigation Tabs -->
+        <ul class="nav nav-tabs nav-fill mb-4" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="characters-tab" data-bs-toggle="tab" data-bs-target="#characters-pane" type="button" role="tab">
+                    <i class="fas fa-users"></i> Personajes
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="inventory-tab" data-bs-toggle="tab" data-bs-target="#inventory-pane" type="button" role="tab">
+                    <i class="fas fa-box-open"></i> Inventario
+                </button>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content">
+            <!-- Characters Tab -->
+            <div class="tab-pane fade show active" id="characters-pane" role="tabpanel">
+                <div class="mb-4">
+                    <button id="addCharacterBtn" class="btn btn-primary btn-lg">
+                        <i class="fas fa-plus"></i> Agregar Personaje
+                    </button>
+                </div>
+                <div class="row g-3" id="charactersContainer">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Inventory Tab -->
+            <div class="tab-pane fade" id="inventory-pane" role="tabpanel">
+                <div class="mb-4">
+                    <button id="addItemBtn" class="btn btn-primary btn-lg">
+                        <i class="fas fa-plus"></i> Agregar Objeto
+                    </button>
+                </div>
+                <div class="row g-3" id="inventoryContainer">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Item Detail Modal -->
+    <div class="modal fade" id="itemModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark text-light">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">Objeto</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Item photo -->
+                    <div class="text-center mb-3">
+                        <img id="itemModalPhoto" src="" alt="Foto" class="img-fluid rounded" style="max-height: 300px; width: 100%; object-fit: cover;">
+                    </div>
+                    <!-- Item details -->
+                    <div class="mb-3">
+                        <label class="form-label">Tipo</label>
+                        <select id="itemModalType" class="form-select form-select-sm bg-secondary text-light border-secondary">
+                            <option value="consumible">Consumible</option>
+                            <option value="equipamiento">Equipamiento</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button id="itemModalRemoveBtn" class="btn btn-danger me-auto">
+                        <i class="fas fa-trash"></i> Quitar
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- File inputs for import/export (hidden) -->
+    <input type="file" id="fileImport" accept=".json" style="display: none;">
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="db.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
