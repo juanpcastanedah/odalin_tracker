@@ -15,13 +15,19 @@
     <!-- Header -->
     <header class="header">
         <div class="container-fluid">
-            <div class="row align-items-center py-3">
+            <div class="row align-items-center py-2">
                 <div class="col">
                     <h1 class="mb-0">
                         <i class="fas fa-swords"></i> Odalín Tracker
                     </h1>
                 </div>
-                <div class="col-auto">
+                <div class="col-auto header-actions">
+                    <button id="addCharacterBtn" class="btn btn-outline-light btn-sm" title="Agregar personaje">
+                        <i class="fas fa-user-plus"></i>
+                    </button>
+                    <button id="addItemBtn" class="btn btn-outline-light btn-sm" title="Agregar objeto">
+                        <i class="fas fa-box-open"></i>
+                    </button>
                     <button id="exportBtn" class="btn btn-outline-light btn-sm" title="Exportar datos">
                         <i class="fas fa-download"></i>
                     </button>
@@ -53,11 +59,6 @@
         <div class="tab-content">
             <!-- Characters Tab -->
             <div class="tab-pane fade show active" id="characters-pane" role="tabpanel">
-                <div class="mb-4">
-                    <button id="addCharacterBtn" class="btn btn-primary btn-lg">
-                        <i class="fas fa-plus"></i> Agregar Personaje
-                    </button>
-                </div>
                 <div class="row g-3" id="charactersContainer">
                     <!-- Populated by JS -->
                 </div>
@@ -65,11 +66,6 @@
 
             <!-- Inventory Tab -->
             <div class="tab-pane fade" id="inventory-pane" role="tabpanel">
-                <div class="mb-4">
-                    <button id="addItemBtn" class="btn btn-primary btn-lg">
-                        <i class="fas fa-plus"></i> Agregar Objeto
-                    </button>
-                </div>
                 <div class="row g-3" id="inventoryContainer">
                     <!-- Populated by JS -->
                 </div>

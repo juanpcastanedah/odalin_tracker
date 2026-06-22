@@ -208,12 +208,14 @@ class CharacterTracker {
         const minArg = min == null ? 'null' : String(min);
         const maxArg = max == null ? 'null' : String(max);
         return `
-            <div class="counter-box">
-                <i class="fas ${icon} attr-icon ${iconClass}"></i>
-                <span class="attr-label">${label}</span>
-                <div style="display: flex; gap: 0.3rem; align-items: center;">
+            <div class="counter-box ${iconClass}">
+                <div class="counter-left">
+                    <i class="fas ${icon} attr-icon ${iconClass}"></i>
+                    <span class="counter-label">${label}</span>
+                </div>
+                <div class="counter-controls">
                     <button class="stat-control-btn" onclick="tracker.updateCounter(${characterId}, '${field}', ${dec}, ${minArg}, ${maxArg})">−</button>
-                    <span class="attr-value" style="min-width: 30px; text-align: center;">${value}</span>
+                    <span class="counter-value">${value}</span>
                     <button class="stat-control-btn" onclick="tracker.updateCounter(${characterId}, '${field}', ${inc}, ${minArg}, ${maxArg})">+</button>
                 </div>
             </div>
@@ -240,12 +242,14 @@ class CharacterTracker {
 
     renderAttributeBox(label, icon, iconClass, value, characterId, attrName) {
         return `
-            <div class="attr-box">
-                <i class="fas ${icon} attr-icon ${iconClass}"></i>
-                <span class="attr-label">${label}</span>
-                <div style="display: flex; gap: 0.3rem; align-items: center;">
+            <div class="attr-box ${iconClass}">
+                <div class="attr-left">
+                    <i class="fas ${icon} attr-icon ${iconClass}"></i>
+                    <span class="attr-label">${label}</span>
+                </div>
+                <div class="attr-controls">
                     <button class="stat-control-btn" onclick="tracker.updateAttribute(${characterId}, '${attrName}', ${value - 1})">−</button>
-                    <span class="attr-value" style="min-width: 30px; text-align: center;">${value}</span>
+                    <span class="attr-value">${value}</span>
                     <button class="stat-control-btn" onclick="tracker.updateAttribute(${characterId}, '${attrName}', ${value + 1})">+</button>
                 </div>
             </div>
