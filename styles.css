@@ -373,16 +373,25 @@ body {
 }
 
 .attr-left {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.16rem;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.attr-main {
     display: inline-flex;
     align-items: center;
     gap: 0.28rem;
-    min-width: 0;
 }
 
 .attr-controls {
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
+    flex: 0 0 auto;
 }
 
 .attr-icon {
@@ -406,6 +415,23 @@ body {
     color: var(--primary-light);
     min-width: 20px;
     text-align: center;
+}
+
+.attr-buff {
+    font-size: 0.64rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-transform: uppercase;
+    letter-spacing: 0.015em;
+    color: #f3f3f3;
+    background: rgba(124, 58, 237, 0.2);
+    border: 1px solid rgba(167, 139, 250, 0.45);
+    border-radius: 0.25rem;
+    padding: 0.14rem 0.28rem;
+    display: inline-block;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
 }
 
 /* ============================================
@@ -721,6 +747,10 @@ body {
    ============================================ */
 .modal-content {
     border: 1px solid #333;
+}
+
+#itemModal .modal-dialog {
+    max-width: 760px;
 }
 
 .modal-header {

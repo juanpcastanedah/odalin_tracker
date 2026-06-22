@@ -63,11 +63,18 @@ class CharacterTracker {
 
             let itemsHtml = '';
             if (char.items && char.items.length > 0) {
+                const itemTypeOrder = ['arma', 'armadura', 'accesorio', 'consumible'];
+                const sortedItems = [...char.items].sort((a, b) => {
+                    const typeA = this.normalizeItemType(char.itemTypes && char.itemTypes[a] ? char.itemTypes[a] : 'armadura');
+                    const typeB = this.normalizeItemType(char.itemTypes && char.itemTypes[b] ? char.itemTypes[b] : 'armadura');
+                    return itemTypeOrder.indexOf(typeA) - itemTypeOrder.indexOf(typeB);
+                });
+
                 itemsHtml = `
                     <div class="character-items-section">
                         <h6>Objetos Equipados</h6>
                         <div class="character-items-grid">
-                            ${char.items.map(itemId => {
+                            ${sortedItems.map(itemId => {
                                 const rawType = char.itemTypes && char.itemTypes[itemId] ? char.itemTypes[itemId] : 'armadura';
                                 const meta = this.getItemTypeMeta(rawType);
                                 const typeClass = meta.type;
@@ -284,11 +291,15 @@ class CharacterTracker {
     }
 
     renderAttributeBox(label, icon, iconClass, value, characterId, attrName) {
+        const buff = this.getAttributeBuffText(attrName, value);
         return `
             <div class="attr-box ${iconClass}">
                 <div class="attr-left">
-                    <i class="fas ${icon} attr-icon ${iconClass}"></i>
-                    <span class="attr-label">${label}</span>
+                    <div class="attr-main">
+                        <i class="fas ${icon} attr-icon ${iconClass}"></i>
+                        <span class="attr-label">${label}</span>
+                    </div>
+                    <span class="attr-buff">${buff}</span>
                 </div>
                 <div class="attr-controls">
                     <button class="stat-control-btn" onclick="tracker.updateAttribute(${characterId}, '${attrName}', ${value - 1})">−</button>
@@ -297,6 +308,72 @@ class CharacterTracker {
                 </div>
             </div>
         `;
+    }
+
+    getAttributeBuffText(attrName, value) {
+        const v = Math.max(0, Number(value) || 0);
+
+        if (attrName === 'mente') {
+            if (v === 0) return 'Sin bono';
+            if (v <= 3) return '+1 carta Inst/Hab';
+            if (v <= 6) return '+2 cartas Inst/Hab';
+            if (v <= 9) return '+3 cartas Inst/Hab';
+            if (v <= 11) return '+4 cartas Inst/Hab';
+            return '+5 cartas Inst/Hab';
+        }
+
+        if (attrName === 'espiritu') {
+            if (v === 0) return 'Sin bono';
+            if (v <= 3) return '+1 carta Aura/Ataque';
+            if (v <= 6) return '+2 cartas Aura/Ataque';
+            if (v <= 9) return '+3 cartas Aura/Ataque';
+            if (v <= 11) return '+4 cartas Aura/Ataque';
+            return '+5 cartas Aura/Ataque';
+        }
+
+        if (attrName === 'agilidad') {
+            if (v === 0) return 'Sin escudo';
+            if (v <= 2) return '+1 escudo';
+            if (v <= 4) return '+2 escudos';
+            if (v <= 6) return '+3 escudos';
+            if (v === 7) return '+4 escudos';
+            if (v === 8) return '+5 escudos';
+            if (v === 9) return '+6 escudos';
+            if (v === 10) return '+7 escudos';
+            if (v === 11) return '+8 escudos';
+            return '+10 escudos';
+        }
+
+        if (attrName === 'fuerza') {
+            if (v === 0) return 'Sin dano';
+            if (v <= 3) return '+1 dano';
+            if (v <= 5) return '+2 dano';
+            if (v <= 7) return '+3 dano';
+            if (v <= 9) return '+4 dano';
+            if (v === 10) return '+5 dano';
+            if (v === 11) return '+6 dano';
+            return '+8 dano';
+        }
+
+        if (attrName === 'suerte') {
+            const critByValue = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 18];
+            const idx = Math.min(v, 12);
+            return `+${critByValue[idx]} critico`;
+        }
+
+        if (attrName === 'vigor') {
+            if (v === 0) return 'Sin salud';
+            if (v === 1) return '+5 salud';
+            if (v <= 3) return '+10 salud';
+            if (v <= 5) return '+15 salud';
+            if (v <= 7) return '+20 salud';
+            if (v <= 9) return '+25 salud';
+            if (v === 10) return '+30 salud';
+            if (v === 11) return '+40 salud';
+            return '+50 salud';
+        }
+
+        return 'Sin bono';
     }
 
     async createNewCharacter() {
