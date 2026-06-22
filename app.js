@@ -580,27 +580,12 @@ class CharacterTracker {
         const characters = await db.getCharacters();
         const item = await db.getItem(itemId);
 
-        // Temporarily show in modal
-        const modalBody = document.querySelector('#itemModal .modal-body');
-        const photo = document.getElementById('itemModalPhoto');
-        const type = document.getElementById('itemModalType');
-        const originalBody = modalBody.innerHTML;
+        const assignmentContainer = document.getElementById('itemModalAssignment');
         const footer = document.querySelector('#itemModal .modal-footer');
         const originalFooter = footer.innerHTML;
 
-        const url = await db.getImageUrl(item.photoId);
-        photo.src = url;
-        const normalizedType = this.normalizeItemType(item.type);
-        if (normalizedType !== item.type) {
-            item.type = normalizedType;
-            await db.saveItem(item);
-        }
-        type.value = normalizedType;
-        type.onchange = async () => {
-            item.type = this.normalizeItemType(type.value);
-            await db.saveItem(item);
-            await this.loadInventory();
-        };
+        await this.setModalItemPhoto(item);
+        await this.configureItemTypeSelect(item, null, true);
 
         let assignmentHtml = '';
         if (characters.length === 0) {
@@ -625,7 +610,7 @@ class CharacterTracker {
             `;
         }
 
-        modalBody.innerHTML = `${originalBody}${assignmentHtml}`;
+        assignmentContainer.innerHTML = assignmentHtml;
         footer.innerHTML = `
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
         `;
@@ -634,9 +619,9 @@ class CharacterTracker {
 
         this.itemModal.show();
         
-        // Restore modal body when modal is hidden
+        // Restore modal content when modal is hidden
         document.getElementById('itemModal').addEventListener('hidden.bs.modal', () => {
-            modalBody.innerHTML = originalBody;
+            assignmentContainer.innerHTML = '';
             footer.innerHTML = originalFooter;
         }, { once: true });
     }
@@ -670,31 +655,11 @@ class CharacterTracker {
 
     async showItemModal(characterId, itemId) {
         const item = await db.getItem(itemId);
-        const photo = document.getElementById('itemModalPhoto');
-        const type = document.getElementById('itemModalType');
+        const assignmentContainer = document.getElementById('itemModalAssignment');
 
-        const url = await db.getImageUrl(item.photoId);
-        photo.src = url;
-        const normalizedType = this.normalizeItemType(item.type);
-        if (normalizedType !== item.type) {
-            item.type = normalizedType;
-            await db.saveItem(item);
-        }
-        type.value = normalizedType;
-        type.onchange = async () => {
-            const newType = this.normalizeItemType(type.value);
-            item.type = newType;
-            await db.saveItem(item);
-
-            const char = await db.getCharacter(characterId);
-            if (char) {
-                if (!char.itemTypes) char.itemTypes = {};
-                char.itemTypes[itemId] = newType;
-                await db.saveCharacter(char);
-            }
-
-            await this.loadCharacters();
-        };
+        await this.setModalItemPhoto(item);
+        await this.configureItemTypeSelect(item, characterId, false);
+        assignmentContainer.innerHTML = '';
 
         this.currentItem = { id: itemId, characterId: characterId };
 
@@ -710,6 +675,56 @@ class CharacterTracker {
         document.getElementById('itemModalRemoveBtn').addEventListener('click', () => this.removeItemFromCharacter());
 
         this.itemModal.show();
+    }
+
+    async setModalItemPhoto(item) {
+        const photo = document.getElementById('itemModalPhoto');
+        if (!photo) return;
+
+        if (!item || !item.photoId) {
+            photo.removeAttribute('src');
+            return;
+        }
+
+        const url = await db.getImageUrl(item.photoId);
+        if (url) {
+            photo.src = url;
+        } else {
+            photo.removeAttribute('src');
+        }
+    }
+
+    async configureItemTypeSelect(item, characterId = null, refreshInventory = false) {
+        const type = document.getElementById('itemModalType');
+        if (!type || !item) return;
+
+        const normalizedType = this.normalizeItemType(item.type);
+        if (normalizedType !== item.type) {
+            item.type = normalizedType;
+            await db.saveItem(item);
+        }
+
+        type.value = normalizedType;
+        type.onchange = async () => {
+            const newType = this.normalizeItemType(type.value);
+            item.type = newType;
+            await db.saveItem(item);
+
+            if (characterId != null) {
+                const char = await db.getCharacter(characterId);
+                if (char) {
+                    if (!char.itemTypes) char.itemTypes = {};
+                    char.itemTypes[item.id] = newType;
+                    await db.saveCharacter(char);
+                    await this.loadCharacters();
+                }
+                return;
+            }
+
+            if (refreshInventory) {
+                await this.loadInventory();
+            }
+        };
     }
 
     async removeItemFromCharacter() {
