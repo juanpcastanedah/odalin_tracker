@@ -3,6 +3,8 @@ class CharacterTracker {
         this.currentCharacter = null;
         this.currentItem = null;
         this.itemModal = null;
+        this.positiveStatuses = ['potenciado', 'reforzado', 'revitalizado', 'acelerado'];
+        this.negativeStatuses = ['debilitado', 'vulnerable', 'envenenado', 'ralentizado'];
         this.setupEventListeners();
         this.loadCharacters();
     }
@@ -42,8 +44,13 @@ class CharacterTracker {
         }
 
         for (const char of characters) {
+            const normalized = this.normalizeCharacter(char);
+            if (normalized) {
+                await db.saveCharacter(char);
+            }
+
             const col = document.createElement('div');
-            col.className = 'col-lg-4 col-md-6';
+            col.className = 'col-12';
             
             let photoHtml = '';
             if (char.photoId) {
@@ -72,35 +79,43 @@ class CharacterTracker {
                 `;
             }
 
+            const statusHtml = `
+                <div class="character-statuses-section">
+                    <h6>Estados Positivos</h6>
+                    <div class="status-pills">
+                        ${this.positiveStatuses.map(status => this.renderStatusCounter(char, status, 'positivo')).join('')}
+                    </div>
+                    <h6 class="mt-2">Estados Negativos</h6>
+                    <div class="status-pills">
+                        ${this.negativeStatuses.map(status => this.renderStatusCounter(char, status, 'negativo')).join('')}
+                    </div>
+                </div>
+            `;
+
             col.innerHTML = `
                 <div class="character-card">
                     ${photoHtml}
                     <div class="character-card-info">
                         <input type="text" class="character-name-input mb-2" value="${char.name}" onchange="tracker.updateCharacterName(${char.id}, this.value)">
                         
-                        <div class="character-stats-row">
-                            <div class="stat-badge alma">
-                                <i class="fas fa-circle-notch"></i>
-                                <input type="number" min="0" max="10" value="${char.alma}" onchange="tracker.updateCharacterStat(${char.id}, 'alma', this.value)" style="width: 30px; background: transparent; border: none; color: inherit; padding: 0; text-align: center;">
-                            </div>
-                            <div class="stat-badge corruption">
-                                <i class="fas fa-circle"></i>
-                                <input type="number" min="0" max="10" value="${char.corrupcion}" onchange="tracker.updateCharacterStat(${char.id}, 'corrupcion', this.value)" style="width: 30px; background: transparent; border: none; color: inherit; padding: 0; text-align: center;">
-                            </div>
-                            <div class="stat-badge health">
-                                <i class="fas fa-heart"></i>
-                                <input type="number" min="25" max="100" step="5" value="${char.saludMax}" onchange="tracker.updateCharacterStat(${char.id}, 'saludMax', this.value)" style="width: 35px; background: transparent; border: none; color: inherit; padding: 0; text-align: center;">
-                            </div>
+                        <div class="character-primary-counters">
+                            ${this.renderCounterBox('Alma', 'fa-circle-notch', 'icon-alma', char.alma, char.id, 'alma', -1, 1, 0, 10)}
+                            ${this.renderCounterBox('Corrupcion', 'fa-circle', 'icon-corrupcion', char.corrupcion, char.id, 'corrupcion', -1, 1, 0, 10)}
+                            ${this.renderCounterBox('Salud Max', 'fa-heart', 'icon-salud', char.saludMax, char.id, 'saludMax', -5, 5, 25, 100)}
+                            ${this.renderCounterBox('Acciones', 'fa-bolt', 'icon-acciones', char.acciones, char.id, 'acciones', -1, 1, 0, null)}
+                            ${this.renderCounterBox('Habilidad', 'fa-star-of-life', 'icon-habilidad', char.habilidadEspecial, char.id, 'habilidadEspecial', -1, 1, 0, null)}
                         </div>
 
                         <div class="character-attributes">
-                            ${this.renderAttributeBox('Mente', 'fa-brain', char.atributos.mente, char.id, 'mente')}
-                            ${this.renderAttributeBox('Espíritu', 'fa-star', char.atributos.espiritu, char.id, 'espiritu')}
-                            ${this.renderAttributeBox('Vigor', 'fa-dumbbell', char.atributos.vigor, char.id, 'vigor')}
-                            ${this.renderAttributeBox('Fuerza', 'fa-bolt', char.atributos.fuerza, char.id, 'fuerza')}
-                            ${this.renderAttributeBox('Suerte', 'fa-dice', char.atributos.suerte, char.id, 'suerte')}
-                            ${this.renderAttributeBox('Agilidad', 'fa-person-running', char.atributos.agilidad, char.id, 'agilidad')}
+                            ${this.renderAttributeBox('Mente', 'fa-brain', 'icon-mente', char.atributos.mente, char.id, 'mente')}
+                            ${this.renderAttributeBox('Espíritu', 'fa-star', 'icon-espiritu', char.atributos.espiritu, char.id, 'espiritu')}
+                            ${this.renderAttributeBox('Vigor', 'fa-dumbbell', 'icon-vigor', char.atributos.vigor, char.id, 'vigor')}
+                            ${this.renderAttributeBox('Fuerza', 'fa-bolt', 'icon-fuerza', char.atributos.fuerza, char.id, 'fuerza')}
+                            ${this.renderAttributeBox('Suerte', 'fa-dice', 'icon-suerte', char.atributos.suerte, char.id, 'suerte')}
+                            ${this.renderAttributeBox('Agilidad', 'fa-person-running', 'icon-agilidad', char.atributos.agilidad, char.id, 'agilidad')}
                         </div>
+
+                        ${statusHtml}
 
                         ${itemsHtml}
 
@@ -119,10 +134,114 @@ class CharacterTracker {
         }
     }
 
-    renderAttributeBox(label, icon, value, characterId, attrName) {
+    normalizeCharacter(char) {
+        let changed = false;
+
+        if (!char.atributos) {
+            char.atributos = {};
+            changed = true;
+        }
+
+        const defaultAttrs = ['mente', 'espiritu', 'vigor', 'fuerza', 'suerte', 'agilidad'];
+        for (const key of defaultAttrs) {
+            if (typeof char.atributos[key] !== 'number') {
+                char.atributos[key] = 0;
+                changed = true;
+            }
+        }
+
+        if (typeof char.alma !== 'number') {
+            char.alma = 0;
+            changed = true;
+        }
+        if (typeof char.corrupcion !== 'number') {
+            char.corrupcion = 0;
+            changed = true;
+        }
+        if (typeof char.saludMax !== 'number') {
+            char.saludMax = 25;
+            changed = true;
+        }
+        if (typeof char.acciones !== 'number') {
+            char.acciones = 3;
+            changed = true;
+        }
+        if (typeof char.habilidadEspecial !== 'number') {
+            char.habilidadEspecial = 0;
+            changed = true;
+        }
+        if (Array.isArray(char.estadosPositivos)) {
+            const mapped = {};
+            for (const status of char.estadosPositivos) {
+                mapped[status] = (mapped[status] || 0) + 1;
+            }
+            char.estadosPositivos = mapped;
+            changed = true;
+        } else if (!char.estadosPositivos || typeof char.estadosPositivos !== 'object') {
+            char.estadosPositivos = {};
+            changed = true;
+        }
+        if (Array.isArray(char.estadosNegativos)) {
+            const mapped = {};
+            for (const status of char.estadosNegativos) {
+                mapped[status] = (mapped[status] || 0) + 1;
+            }
+            char.estadosNegativos = mapped;
+            changed = true;
+        } else if (!char.estadosNegativos || typeof char.estadosNegativos !== 'object') {
+            char.estadosNegativos = {};
+            changed = true;
+        }
+        if (!Array.isArray(char.items)) {
+            char.items = [];
+            changed = true;
+        }
+        if (!char.itemTypes) {
+            char.itemTypes = {};
+            changed = true;
+        }
+
+        return changed;
+    }
+
+    renderCounterBox(label, icon, iconClass, value, characterId, field, dec, inc, min, max) {
+        const minArg = min == null ? 'null' : String(min);
+        const maxArg = max == null ? 'null' : String(max);
+        return `
+            <div class="counter-box">
+                <i class="fas ${icon} attr-icon ${iconClass}"></i>
+                <span class="attr-label">${label}</span>
+                <div style="display: flex; gap: 0.3rem; align-items: center;">
+                    <button class="stat-control-btn" onclick="tracker.updateCounter(${characterId}, '${field}', ${dec}, ${minArg}, ${maxArg})">−</button>
+                    <span class="attr-value" style="min-width: 30px; text-align: center;">${value}</span>
+                    <button class="stat-control-btn" onclick="tracker.updateCounter(${characterId}, '${field}', ${inc}, ${minArg}, ${maxArg})">+</button>
+                </div>
+            </div>
+        `;
+    }
+
+    renderStatusCounter(char, status, type) {
+        const prop = type === 'positivo' ? 'estadosPositivos' : 'estadosNegativos';
+        const count = Number(char[prop][status] || 0);
+        const active = count > 0;
+        const cls = `${type} ${active ? 'active' : ''}`;
+        const label = status.charAt(0).toUpperCase() + status.slice(1);
+        return `
+            <div class="status-counter ${cls}">
+                <span class="status-label">${label}</span>
+                <div class="status-controls">
+                    <button class="status-btn" onclick="tracker.updateStatusCounter(${char.id}, '${type}', '${status}', -1)">−</button>
+                    <span class="status-count">${count}</span>
+                    <button class="status-btn" onclick="tracker.updateStatusCounter(${char.id}, '${type}', '${status}', 1)">+</button>
+                </div>
+            </div>
+        `;
+    }
+
+    renderAttributeBox(label, icon, iconClass, value, characterId, attrName) {
         return `
             <div class="attr-box">
-                <i class="fas ${icon} attr-icon"></i>
+                <i class="fas ${icon} attr-icon ${iconClass}"></i>
                 <span class="attr-label">${label}</span>
                 <div style="display: flex; gap: 0.3rem; align-items: center;">
                     <button class="stat-control-btn" onclick="tracker.updateAttribute(${characterId}, '${attrName}', ${value - 1})">−</button>
@@ -144,6 +263,8 @@ class CharacterTracker {
             alma: 0,
             corrupcion: 0,
             saludMax: 25,
+            acciones: 3,
+            habilidadEspecial: 0,
             atributos: {
                 mente: 0,
                 espiritu: 0,
@@ -152,6 +273,8 @@ class CharacterTracker {
                 suerte: 0,
                 agilidad: 0
             },
+            estadosPositivos: [],
+            estadosNegativos: [],
             items: [],
             itemTypes: {}
         };
@@ -168,11 +291,16 @@ class CharacterTracker {
         }
     }
 
-    async updateCharacterStat(characterId, stat, value) {
+    async updateCounter(characterId, field, delta, min, max) {
         const char = await db.getCharacter(characterId);
         if (char) {
-            char[stat] = parseInt(value);
+            const current = Number(char[field] ?? 0);
+            let next = current + Number(delta);
+            if (min != null) next = Math.max(next, Number(min));
+            if (max != null) next = Math.min(next, Number(max));
+            char[field] = next;
             await db.saveCharacter(char);
+            this.loadCharacters();
         }
     }
 
@@ -184,6 +312,20 @@ class CharacterTracker {
             await db.saveCharacter(char);
             this.loadCharacters();
         }
+    }
+
+    async updateStatusCounter(characterId, type, status, delta) {
+        const char = await db.getCharacter(characterId);
+        if (!char) return;
+
+        this.normalizeCharacter(char);
+        const prop = type === 'positivo' ? 'estadosPositivos' : 'estadosNegativos';
+        const current = Number(char[prop][status] || 0);
+        const next = Math.max(0, current + Number(delta));
+        char[prop][status] = next;
+
+        await db.saveCharacter(char);
+        this.loadCharacters();
     }
 
     async addPhotoToCharacter(characterId) {
