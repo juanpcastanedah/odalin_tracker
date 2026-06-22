@@ -12,68 +12,54 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body class="bg-dark text-light">
-    <!-- Header -->
-    <header class="header">
-        <div class="container-fluid">
-            <div class="row align-items-center py-2">
-                <div class="col">
-                    <h1 class="mb-0">
-                        <i class="fas fa-swords"></i> Odalín Tracker
-                    </h1>
-                </div>
-                <div class="col-auto header-actions">
-                    <button id="addCharacterBtn" class="btn btn-outline-light btn-sm" title="Agregar personaje">
-                        <i class="fas fa-user-plus"></i>
-                    </button>
-                    <button id="addItemBtn" class="btn btn-outline-light btn-sm" title="Agregar objeto">
-                        <i class="fas fa-box-open"></i>
-                    </button>
-                    <button id="restBtn" class="btn btn-outline-light btn-sm" title="Aplicar descanso">
-                        <i class="fas fa-bed"></i>
-                    </button>
-                    <button id="exportBtn" class="btn btn-outline-light btn-sm" title="Exportar datos">
-                        <i class="fas fa-download"></i>
-                    </button>
-                    <button id="importBtn" class="btn btn-outline-light btn-sm" title="Importar datos">
-                        <i class="fas fa-upload"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- Main Container -->
-    <div class="container-fluid py-4">
-        <!-- Navigation Tabs -->
-        <ul class="nav nav-tabs nav-fill mb-4" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="characters-tab" data-bs-toggle="tab" data-bs-target="#characters-pane" type="button" role="tab">
-                    <i class="fas fa-users"></i> Personajes
+    <div class="app-shell">
+        <aside class="sidebar-menu" aria-label="Menu principal">
+            <div class="sidebar-section" role="tablist" aria-label="Navegacion">
+                <button class="nav-link active" id="characters-tab" data-bs-toggle="tab" data-bs-target="#characters-pane" type="button" role="tab" title="Personajes">
+                    <i class="fas fa-users"></i>
                 </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="inventory-tab" data-bs-toggle="tab" data-bs-target="#inventory-pane" type="button" role="tab">
-                    <i class="fas fa-box-open"></i> Inventario
+                <button class="nav-link" id="inventory-tab" data-bs-toggle="tab" data-bs-target="#inventory-pane" type="button" role="tab" title="Inventario">
+                    <i class="fas fa-box-open"></i>
                 </button>
-            </li>
-        </ul>
-
-        <!-- Tab Content -->
-        <div class="tab-content">
-            <!-- Characters Tab -->
-            <div class="tab-pane fade show active" id="characters-pane" role="tabpanel">
-                <div class="row g-3" id="charactersContainer">
-                    <!-- Populated by JS -->
-                </div>
             </div>
 
-            <!-- Inventory Tab -->
-            <div class="tab-pane fade" id="inventory-pane" role="tabpanel">
-                <div class="row g-3" id="inventoryContainer">
-                    <!-- Populated by JS -->
+            <div class="sidebar-section">
+                <button id="addCharacterBtn" class="btn btn-outline-light btn-sm" title="Agregar personaje">
+                    <i class="fas fa-user-plus"></i>
+                </button>
+                <button id="addItemBtn" class="btn btn-outline-light btn-sm" title="Agregar objeto">
+                    <i class="fas fa-plus"></i>
+                </button>
+                <button id="restBtn" class="btn btn-outline-light btn-sm" title="Aplicar descanso">
+                    <i class="fas fa-bed"></i>
+                </button>
+            </div>
+
+            <div class="sidebar-section sidebar-bottom">
+                <button id="exportBtn" class="btn btn-outline-light btn-sm" title="Exportar datos">
+                    <i class="fas fa-download"></i>
+                </button>
+                <button id="importBtn" class="btn btn-outline-light btn-sm" title="Importar datos">
+                    <i class="fas fa-upload"></i>
+                </button>
+            </div>
+        </aside>
+
+        <main class="app-content">
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="characters-pane" role="tabpanel">
+                    <div class="row g-3" id="charactersContainer">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="inventory-pane" role="tabpanel">
+                    <div class="row g-3" id="inventoryContainer">
+                        <!-- Populated by JS -->
+                    </div>
                 </div>
             </div>
-        </div>
+        </main>
     </div>
 
     <!-- Item Detail Modal -->
