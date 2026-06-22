@@ -11,6 +11,7 @@ class CharacterTracker {
 
     setupEventListeners() {
         // Header buttons
+        document.getElementById('restBtn').addEventListener('click', () => this.applyRestToAllCharacters());
         document.getElementById('exportBtn').addEventListener('click', () => this.exportData());
         document.getElementById('importBtn').addEventListener('click', () => {
             document.getElementById('fileImport').click();
@@ -372,6 +373,28 @@ class CharacterTracker {
 
         await db.saveCharacter(char);
         this.loadCharacters();
+    }
+
+    async applyRestToAllCharacters() {
+        const characters = await db.getCharacters();
+        if (characters.length === 0) {
+            alert('No hay personajes para aplicar descanso.');
+            return;
+        }
+
+        const confirmed = confirm('Aplicar descanso a todos los personajes?\n\n- Estados positivos y negativos: 0\n- Acciones: 3\n- Habilidad especial: 0');
+        if (!confirmed) return;
+
+        for (const char of characters) {
+            this.normalizeCharacter(char);
+            char.estadosPositivos = {};
+            char.estadosNegativos = {};
+            char.acciones = 3;
+            char.habilidadEspecial = 0;
+            await db.saveCharacter(char);
+        }
+
+        await this.loadCharacters();
     }
 
     async addPhotoToCharacter(characterId) {
