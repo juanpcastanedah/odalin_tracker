@@ -135,7 +135,7 @@ body {
 
 .character-primary-counters {
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 0.3rem;
     margin-bottom: 0.5rem;
 }
@@ -565,10 +565,22 @@ body {
     color: #fde68a;
 }
 
-.item-icon-btn.equipamiento {
+.item-icon-btn.arma {
+    background: rgba(239, 68, 68, 0.18);
+    border-color: #ef4444;
+    color: #fecaca;
+}
+
+.item-icon-btn.armadura {
     background: rgba(52, 211, 153, 0.18);
     border-color: #34d399;
     color: #86efac;
+}
+
+.item-icon-btn.accesorio {
+    background: rgba(59, 130, 246, 0.18);
+    border-color: #3b82f6;
+    color: #bfdbfe;
 }
 
 /* ============================================
@@ -615,8 +627,16 @@ body {
     color: #fbbf24;
 }
 
-.inventory-item-type.equipamiento {
+.inventory-item-type.arma {
+    color: #ef4444;
+}
+
+.inventory-item-type.armadura {
     color: #34d399;
+}
+
+.inventory-item-type.accesorio {
+    color: #3b82f6;
 }
 
 /* ============================================
@@ -728,6 +748,15 @@ body {
         grid-template-columns: 1fr 1fr;
     }
 
+    .character-name-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .character-name-input {
+        max-width: none;
+    }
+
     .status-pills {
         grid-template-columns: 1fr 1fr;
     }
@@ -800,15 +829,53 @@ body {
     background: #333;
     border: 1px solid var(--primary);
     color: var(--primary-light);
-    font-size: 1.2rem;
+    font-size: 1rem;
     font-weight: 600;
-    padding: 0.5rem;
+    padding: 0.38rem 0.5rem;
     border-radius: 0.4rem;
     width: 100%;
+    max-width: 420px;
 }
 
 .character-name-input:focus {
     outline: none;
     border-color: var(--primary-light);
     box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.25);
+}
+
+.character-name-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.45rem;
+}
+
+.name-actions-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 0.4rem;
+    padding: 0.22rem 0.32rem;
+    white-space: nowrap;
+}
+
+.name-actions-label {
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.name-actions-value {
+    min-width: 18px;
+    text-align: center;
+    font-size: 0.76rem;
+    font-weight: 700;
+}
+
+.name-actions-box.icon-acciones,
+.name-actions-box.icon-acciones .name-actions-label,
+.name-actions-box.icon-acciones .name-actions-value {
+    color: #facc15;
 }

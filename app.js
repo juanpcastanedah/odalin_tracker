@@ -67,9 +67,11 @@ class CharacterTracker {
                         <h6>Objetos Equipados</h6>
                         <div class="character-items-grid">
                             ${char.items.map(itemId => {
-                                const typeClass = char.itemTypes && char.itemTypes[itemId] ? char.itemTypes[itemId] : 'equipamiento';
-                                const icon = typeClass === 'consumible' ? 'fa-vial' : 'fa-shield-halved';
-                                const title = typeClass === 'consumible' ? 'Consumible' : 'Equipamiento';
+                                const rawType = char.itemTypes && char.itemTypes[itemId] ? char.itemTypes[itemId] : 'armadura';
+                                const meta = this.getItemTypeMeta(rawType);
+                                const typeClass = meta.type;
+                                const icon = meta.icon;
+                                const title = meta.label;
                                 return `<button class="item-icon-btn ${typeClass}" title="${title}" aria-label="${title}" data-item-id="${itemId}" onclick="tracker.showItemModal(${char.id}, ${itemId})">
                                     <i class="fas ${icon}"></i>
                                 </button>`;
@@ -96,13 +98,21 @@ class CharacterTracker {
                 <div class="character-card">
                     ${photoHtml}
                     <div class="character-card-info">
-                        <input type="text" class="character-name-input mb-2" value="${char.name}" onchange="tracker.updateCharacterName(${char.id}, this.value)">
+                        <div class="character-name-row mb-2">
+                            <input type="text" class="character-name-input" value="${char.name}" onchange="tracker.updateCharacterName(${char.id}, this.value)">
+                            <div class="name-actions-box icon-acciones">
+                                <i class="fas fa-bolt icon-acciones"></i>
+                                <span class="name-actions-label">Acciones</span>
+                                <button class="stat-control-btn" onclick="tracker.updateCounter(${char.id}, 'acciones', -1, 0, null)">−</button>
+                                <span class="name-actions-value">${char.acciones}</span>
+                                <button class="stat-control-btn" onclick="tracker.updateCounter(${char.id}, 'acciones', 1, 0, null)">+</button>
+                            </div>
+                        </div>
                         
                         <div class="character-primary-counters">
                             ${this.renderCounterBox('Alma', 'fa-circle-notch', 'icon-alma', char.alma, char.id, 'alma', -1, 1, 0, 10)}
                             ${this.renderCounterBox('Corrupcion', 'fa-circle', 'icon-corrupcion', char.corrupcion, char.id, 'corrupcion', -1, 1, 0, 10)}
                             ${this.renderCounterBox('Salud Max', 'fa-heart', 'icon-salud', char.saludMax, char.id, 'saludMax', -5, 5, 25, 100)}
-                            ${this.renderCounterBox('Acciones', 'fa-bolt', 'icon-acciones', char.acciones, char.id, 'acciones', -1, 1, 0, null)}
                             ${this.renderCounterBox('Habilidad', 'fa-star-of-life', 'icon-habilidad', char.habilidadEspecial, char.id, 'habilidadEspecial', -1, 1, 0, null)}
                         </div>
 
@@ -200,8 +210,40 @@ class CharacterTracker {
             char.itemTypes = {};
             changed = true;
         }
+        if (char.itemTypes && typeof char.itemTypes === 'object') {
+            for (const key of Object.keys(char.itemTypes)) {
+                const normalizedType = this.normalizeItemType(char.itemTypes[key]);
+                if (char.itemTypes[key] !== normalizedType) {
+                    char.itemTypes[key] = normalizedType;
+                    changed = true;
+                }
+            }
+        }
 
         return changed;
+    }
+
+    normalizeItemType(type) {
+        if (type === 'equipamiento') return 'armadura';
+        if (type === 'consumible') return 'consumible';
+        if (type === 'arma') return 'arma';
+        if (type === 'armadura') return 'armadura';
+        if (type === 'accesorio') return 'accesorio';
+        return 'armadura';
+    }
+
+    getItemTypeMeta(type) {
+        const normalized = this.normalizeItemType(type);
+        if (normalized === 'consumible') {
+            return { type: 'consumible', icon: 'fa-vial', label: 'Consumible' };
+        }
+        if (normalized === 'arma') {
+            return { type: 'arma', icon: 'fa-hammer', label: 'Arma' };
+        }
+        if (normalized === 'accesorio') {
+            return { type: 'accesorio', icon: 'fa-ring', label: 'Accesorio' };
+        }
+        return { type: 'armadura', icon: 'fa-shield-halved', label: 'Armadura' };
     }
 
     renderCounterBox(label, icon, iconClass, value, characterId, field, dec, inc, min, max) {
@@ -391,14 +433,19 @@ class CharacterTracker {
                 photoHtml = `<div class="inventory-item-photo" style="background: #333; display: flex; align-items: center; justify-content: center;"><i class="fas fa-box" style="font-size: 48px; color: #666;"></i></div>`;
             }
 
-            const icon = item.type === 'consumible' ? 'fa-vial' : 'fa-sword';
+            const meta = this.getItemTypeMeta(item.type);
+            const normalizedType = meta.type;
+            if (item.type !== normalizedType) {
+                item.type = normalizedType;
+                await db.saveItem(item);
+            }
 
             col.innerHTML = `
                 <div class="inventory-item-card" onclick="tracker.assignItemModal(${item.id})">
                     ${photoHtml}
                     <div class="inventory-item-info">
-                        <div class="inventory-item-type ${item.type}">
-                            <i class="fas ${icon}"></i> ${item.type}
+                        <div class="inventory-item-type ${meta.type}">
+                            <i class="fas ${meta.icon}"></i> ${meta.label}
                         </div>
                     </div>
                 </div>
@@ -417,7 +464,7 @@ class CharacterTracker {
 
             const newItem = {
                 photoId: imageId,
-                type: 'equipamiento',
+                type: 'armadura',
                 assignedTo: null
             };
 
@@ -443,10 +490,16 @@ class CharacterTracker {
 
         const url = await db.getImageUrl(item.photoId);
         photo.src = url;
-        type.value = item.type;
-        type.onchange = async () => {
-            item.type = type.value;
+        const normalizedType = this.normalizeItemType(item.type);
+        if (normalizedType !== item.type) {
+            item.type = normalizedType;
             await db.saveItem(item);
+        }
+        type.value = normalizedType;
+        type.onchange = async () => {
+            item.type = this.normalizeItemType(type.value);
+            await db.saveItem(item);
+            await this.loadInventory();
         };
 
         let assignmentHtml = '';
@@ -507,7 +560,7 @@ class CharacterTracker {
         if (!char.items) char.items = [];
         if (!char.itemTypes) char.itemTypes = {};
         char.items.push(itemId);
-        char.itemTypes[itemId] = item.type;
+        char.itemTypes[itemId] = this.normalizeItemType(item.type);
         await db.saveCharacter(char);
 
         this.itemModal.hide();
@@ -522,7 +575,26 @@ class CharacterTracker {
 
         const url = await db.getImageUrl(item.photoId);
         photo.src = url;
-        type.value = item.type;
+        const normalizedType = this.normalizeItemType(item.type);
+        if (normalizedType !== item.type) {
+            item.type = normalizedType;
+            await db.saveItem(item);
+        }
+        type.value = normalizedType;
+        type.onchange = async () => {
+            const newType = this.normalizeItemType(type.value);
+            item.type = newType;
+            await db.saveItem(item);
+
+            const char = await db.getCharacter(characterId);
+            if (char) {
+                if (!char.itemTypes) char.itemTypes = {};
+                char.itemTypes[itemId] = newType;
+                await db.saveCharacter(char);
+            }
+
+            await this.loadCharacters();
+        };
 
         this.currentItem = { id: itemId, characterId: characterId };
 
